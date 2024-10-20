@@ -1,26 +1,27 @@
 const chancesOfRain = Math.random(1, 10) * 10;
 
 // fetch random advice from API
-function fetchAdviceById() {
-  return new Promise((resolve, reject) => {
-    fetch(`https://api.adviceslip.com/advice/${chancesOfRain}`)
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          throw new Error("Network response was not ok.");
-        }
-      })
-      .then((data) => {
-        resolve(data.slip.advice);
-      })
-      .catch((error) => {
-        reject(error.message);
-      });
-  });
-}
+const fetchAdviceById = async () => {
+  try {
+    const response = await fetch(
+      `https://api.adviceslip.com/advice/${chancesOfRain}`
+    );
+    if (!response.ok) {
+      throw new Error("Network response was not ok.");
+    }
+    const data = await response.json();
+    const advice = data.slip.advice;
+    if (!advice || advice === undefined) {
+      throw new Error("Advice not found.");
+    }
+    return advice;
+  } catch (error) {
+    console.error(error);
+  }
+};
 
-function customPromise() {
+// custom promise
+const customPromise = () => {
   return new Promise((resolve, reject) => {
     let isTheWeatherGood;
 
@@ -35,10 +36,19 @@ function customPromise() {
     } else if (!isTheWeatherGood) {
       resolve("It is gray outside, I would suggest staying cosy at home.");
     } else {
-      reject("Custom Promise Failed: critical fail!");
+      reject("Something went wrong.");
     }
   });
-}
+};
+
+const customPromiseResult = async () => {
+  try {
+    const result = await customPromise();
+    return result;
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 // Event listener for fetching random advice
 document.getElementById("triggerPromise").addEventListener("click", () => {
@@ -53,7 +63,7 @@ document.getElementById("triggerPromise").addEventListener("click", () => {
 
 // Event listener for triggering the custom promise
 document.getElementById("triggerPromise").addEventListener("click", () => {
-  customPromise()
+  customPromiseResult()
     .then((result) => {
       document.getElementById("promiseResult").innerText = `${result}`;
     })
